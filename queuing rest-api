@@ -1,0 +1,36 @@
+# import the require library
+from flask import Flask, jsonify, request
+from concurrent.futures import ThreadPoolExecutor
+
+app = Flask(__name__)
+# We are Adjust the number of thread as needed
+executor = ThreadPoolExecutor(10)
+
+def process_request(data):
+    # We are Simulate processing by sleeping for a few seconds
+    time.sleep(2)
+    
+    # We are Perform actual processing logic here
+    processed_data = data['input_data'] * 2
+    
+    return {'processed_data': processed_data}
+
+@app.route('/process', methods=['POST'])
+def process():
+    try:
+        data = request.json
+        if not data:
+            return jsonify({'error': 'NO JSON data received'}, 400)
+        # We are Submit the prcoessing task to the thread pool
+        future = executor.submit(process_request, data)
+        # We are waiting for the result
+        result = future.result()
+        
+        # we are returing the result
+        return jsonify(result), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    
+
+if __name__ == '__main__':
+    app.run(debug=True)
